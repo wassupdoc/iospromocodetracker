@@ -2,6 +2,17 @@
 
 This script automates the distribution of **Apple App Store promo codes** via **Google Sheets** and **Apps Script**.
 
+## 🎬 Live Demo
+Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbzuNbx225PC1HHchhIw_B4iza0hdHVpEuG9Yy5VMaXuhg2arghmegTJbEqX_ARkSTsw/exec)
+
+What you'll see:
+- If codes are available: QR code and App Store redemption link
+- If no codes: Redirect to sample website
+- Mobile-friendly interface
+- Instant code delivery
+
+Note: This is a demo instance using sample codes for demonstration purposes.
+
 ## 📋 Prerequisites
 - Google account
 - Apple Developer account with promo codes
@@ -34,7 +45,17 @@ This script automates the distribution of **Apple App Store promo codes** via **
    - Choose "Web app" as type
    - Set "Execute as" to "Me"
    - Set "Who has access" to "Anyone"
+   - **Important**: Check "Allow access to anyone, even anonymous"
    - Click Deploy and copy the URL
+3. Test deployment:
+   - Open URL in an incognito window
+   - If you see "unable to open file" error:
+     1. Delete all deployments
+     2. Create new deployment
+     3. Ensure sheet is shared with anyone (view only)
+     4. Try deployment again
+
+Note: The sheet must be accessible to anyone with the link (View only) for the web app to work properly.
 
 ## 🌐 Custom Domain (Optional)
 Make the app appear to run on your domain:
@@ -56,10 +77,15 @@ If not using the template, create a sheet with:
 - Cell E1: Reserved for notification tracking
 
 ## 🔐 Security & Permissions
-- Script runs under developer's account permissions
+- Script runs under developer's account permissions (intended behavior)
 - End users don't need Google account access
 - Only the developer needs to authorize the script
 - All sheet operations are secure and authenticated
+- "Execute as Me" setting ensures:
+  - Secure sheet access
+  - Protected email notifications
+  - Controlled code distribution
+  - Single point of management
 
 ## 🎯 How It Works
 1. User accesses the web app URL
@@ -139,6 +165,12 @@ Common issues and solutions:
    - Check Apps Script logs for error details
    - Verify CONFIG.REDIRECT_URL is properly formatted
    - Ensure all setup steps were completed
+4. "Unable to open file" error:
+   - Ensure sheet is shared (Anyone with link - Viewer)
+   - Create new deployment from scratch
+   - Check "Allow access to anyone, even anonymous"
+   - Test in incognito window
+   - Clear browser cache and try again
 
 ## 🔄 Maintenance
 - Add new codes directly to sheet
