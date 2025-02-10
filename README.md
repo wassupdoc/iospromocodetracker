@@ -15,14 +15,19 @@ This script automates the distribution of **Apple App Store promo codes** via **
 
 ## ⚙️ Configuration
 1. Open the Apps Script editor (**Extensions → Apps Script**)
-2. Find the line: `var redirectURL = "https://yourwebsite.com";`
+2. Find the CONFIG object at the top of the script:
+   ```javascript
+   const CONFIG = {
+     EXPIRATION_DAYS: 28,
+     REDIRECT_URL: "https://yourwebsite.com"
+   };
+   ```
 3. Replace `yourwebsite.com` with your actual website URL
 4. Save the script
 
 ## 🔄 Initial Setup
 1. In the Apps Script editor:
-   - Run the `setupScript()` function
-   - Run the `createTrigger()` function
+   - Run the `initialize()` function
    - Authorize when prompted
 2. Deploy as web app:
    - Click **Deploy → New deployment**
@@ -82,6 +87,10 @@ Common issues and solutions:
    - Verify sheet structure
    - Check date formats
    - Ensure codes aren't marked as used
+3. Script errors:
+   - Check Apps Script logs for error details
+   - Verify CONFIG.REDIRECT_URL is properly formatted
+   - Ensure all setup steps were completed
 
 ## 🔄 Maintenance
 - Add new codes directly to sheet
