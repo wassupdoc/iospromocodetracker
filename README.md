@@ -21,7 +21,12 @@ This script automates the distribution of **Apple App Store promo codes** via **
 
 ## 📋 Setup Guide
 
-### 1. Prepare Google Sheet
+### Quick Start (Recommended)
+1. Open the [template spreadsheet](https://docs.google.com/spreadsheets/d/1tkYNCup-ZtKozkpF6s96E__1DcsUUtso0afIQbF-poE/edit?usp=sharing)
+2. Make a copy: **File → Make a copy**
+3. Skip to step 3 of the Initial Setup below
+
+### Manual Setup
 Create a sheet with these columns:
 - Column A: Promo Code
 - Column B: Status (Blank = Available, "Redeemed" = Used)
@@ -37,7 +42,7 @@ Create a sheet with these columns:
 5. Replace `"https://freeradicalsoft.com"` with your redirect URL
 
 ### 3. Initial Setup (Developer Only)
-1. Open the Apps Script editor
+1. Open the Apps Script editor - found in the extensions menu as "App Script"
 2. Run the `setupScript()` function once
 3. Run the `createTrigger()` function once
 4. Authorize the script when prompted
