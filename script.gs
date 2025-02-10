@@ -1,7 +1,7 @@
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
-  var redirectURL = "https://your-redirect-site.com"; // Change to your custom redirect URL
+  var redirectURL = "https://freeradicalsoft.com"; // Change this to your custom redirect URL
   var ownerEmail = Session.getActiveUser().getEmail();
   var today = new Date();
   var allRedeemed = true;
@@ -12,12 +12,18 @@ function doGet() {
     var uploadDate = data[i][2];
     var expirationDate = data[i][3];
 
-    // If no expiration date, set it to 28 days after upload
-    if (!expirationDate && uploadDate) {
+    // Check if upload date is missing and set it to today's date
+    if (!uploadDate) {
+      var todayDate = new Date();
+      sheet.getRange(i + 1, 3).setValue(todayDate); // Store upload date in the sheet
+      uploadDate = todayDate;
+    }
+
+    // Check if expiration date is missing and set it immediately based on upload date
+    if (!expirationDate) {
       var expDate = new Date(uploadDate);
       expDate.setDate(expDate.getDate() + 28);
-      sheet.getRange(i + 1, 4).setValue(expDate);
-      expirationDate = expDate;
+      sheet.getRange(i + 1, 4).setValue(expDate); // Store expiration date in the sheet
     }
 
     // Check if the promo code is still valid
@@ -25,16 +31,62 @@ function doGet() {
       sheet.getRange(i + 1, 2).setValue("Redeemed");
 
       var appStoreURL = "https://apps.apple.com/redeem?code=" + promoCode;
-      var qrCodeURL = "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=" + encodeURIComponent(appStoreURL);
+      var qrCodeURL = "https://quickchart.io/qr?text=" + encodeURIComponent(appStoreURL) + "&size=200";
 
       return HtmlService.createHtmlOutput(
         `<html>
           <head>
-            <meta http-equiv="refresh" content="0; url='${appStoreURL}'" />
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 20px;
+                background-color: #f8f8f8;
+              }
+              .container {
+                max-width: 500px;
+                margin: auto;
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+              }
+              .btn {
+                background-color: #007aff;
+                color: white;
+                padding: 12px 20px;
+                font-size: 18px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                text-decoration: none;
+                display: inline-block;
+                margin: 10px 0;
+              }
+              .btn:hover {
+                background-color: #005ecb;
+              }
+              .qr-container {
+                margin-top: 20px;
+              }
+            </style>
+            <script>
+              function openAppStore() {
+                window.open("${appStoreURL}", "_blank");
+              }
+              window.onload = openAppStore;
+            </script>
           </head>
           <body>
-            <p>Scan the QR code or <a href="${appStoreURL}">click here</a> to redeem.</p>
-            <img src="${qrCodeURL}" alt="QR Code">
+            <div class="container">
+              <h2>Your Free App Promo Code</h2>
+              <p>Click below to redeem your code:</p>
+              <a class="btn" href="${appStoreURL}" target="_blank">Redeem Code</a>
+              <div class="qr-container">
+                <p>Or scan the QR code:</p>
+                <img src="${qrCodeURL}" alt="QR Code">
+              </div>
+            </div>
           </body>
         </html>`
       ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -55,6 +107,26 @@ function doGet() {
   return HtmlService.createHtmlOutput(
     `<html>
       <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f8f8;
+          }
+          .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+          }
+          .msg {
+            font-size: 18px;
+            color: #333;
+          }
+        </style>
         <script>
           setTimeout(function() {
             window.location.href = "${redirectURL}";
@@ -62,8 +134,11 @@ function doGet() {
         </script>
       </head>
       <body>
-        <p>Sorry, all promo codes have been redeemed or expired.</p>
-        <p>You will be redirected shortly. If not, <a href="${redirectURL}">click here</a>.</p>
+        <div class="container">
+          <p class="msg">Sorry, all promo codes have been redeemed or expired.</p>
+          <p class="msg">You will be redirected shortly.</p>
+          <p><a href="${redirectURL}">Click here if you are not redirected.</a></p>
+        </div>
       </body>
     </html>`
   ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
