@@ -1,19 +1,31 @@
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
-  var redirectURL = "https://your-redirect-site.com"; // Change this to your desired redirect URL
-  var ownerEmail = Session.getActiveUser().getEmail(); // Get the sheet owner's email
-  var allRedeemed = true; // Track if all codes are redeemed
+  var redirectURL = "https://your-redirect-site.com"; // Change to your custom redirect URL
+  var ownerEmail = Session.getActiveUser().getEmail();
+  var today = new Date();
+  var allRedeemed = true;
 
-  for (var i = 1; i < data.length; i++) { // Start from row 2 (skip headers)
-    if (data[i][1] !== "Redeemed") { // Check if status is not "Redeemed"
-      var promoCode = data[i][0]; // Get the promo code
-      sheet.getRange(i + 1, 2).setValue("Redeemed"); // Mark as Redeemed
+  for (var i = 1; i < data.length; i++) { // Skip headers
+    var promoCode = data[i][0];
+    var status = data[i][1];
+    var uploadDate = data[i][2];
+    var expirationDate = data[i][3];
 
-      // If new codes are added, reset the "Notified" flag
-      sheet.getRange("C1").setValue(""); 
+    // If no expiration date, set it to 28 days after upload
+    if (!expirationDate && uploadDate) {
+      var expDate = new Date(uploadDate);
+      expDate.setDate(expDate.getDate() + 28);
+      sheet.getRange(i + 1, 4).setValue(expDate);
+      expirationDate = expDate;
+    }
+
+    // Check if the promo code is still valid
+    if (status !== "Redeemed" && expirationDate > today) {
+      sheet.getRange(i + 1, 2).setValue("Redeemed");
 
       var appStoreURL = "https://apps.apple.com/redeem?code=" + promoCode;
+      var qrCodeURL = "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=" + encodeURIComponent(appStoreURL);
 
       return HtmlService.createHtmlOutput(
         `<html>
@@ -21,21 +33,25 @@ function doGet() {
             <meta http-equiv="refresh" content="0; url='${appStoreURL}'" />
           </head>
           <body>
-            <p>If not redirected, <a href="${appStoreURL}">click here</a>.</p>
+            <p>Scan the QR code or <a href="${appStoreURL}">click here</a> to redeem.</p>
+            <img src="${qrCodeURL}" alt="QR Code">
           </body>
         </html>`
       ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    } else if (status !== "Redeemed" && expirationDate <= today) {
+      // Mark expired codes as "Expired"
+      sheet.getRange(i + 1, 2).setValue("Expired");
     } else {
-      allRedeemed = allRedeemed && true; // Continue checking
+      allRedeemed = allRedeemed && true;
     }
   }
-  // If all codes are redeemed and email wasn't sent before
-  if (allRedeemed && sheet.getRange("C1").getValue() !== "Notified") {
-    MailApp.sendEmail(ownerEmail, "All Promo Codes Redeemed", "All promo codes in your Google Sheet have been redeemed.");
-    sheet.getRange("C1").setValue("Notified"); // Prevent multiple notifications
+
+  // Notify developer if all codes are redeemed/expired
+  if (allRedeemed && sheet.getRange("E1").getValue() !== "Notified") {
+    MailApp.sendEmail(ownerEmail, "All Promo Codes Redeemed or Expired", "All promo codes in your Google Sheet have been used or expired.");
+    sheet.getRange("E1").setValue("Notified");
   }
 
-  // Show message before redirecting
   return HtmlService.createHtmlOutput(
     `<html>
       <head>
@@ -46,7 +62,7 @@ function doGet() {
         </script>
       </head>
       <body>
-        <p>Sorry, all promo codes have been redeemed.</p>
+        <p>Sorry, all promo codes have been redeemed or expired.</p>
         <p>You will be redirected shortly. If not, <a href="${redirectURL}">click here</a>.</p>
       </body>
     </html>`
