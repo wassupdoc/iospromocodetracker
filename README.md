@@ -7,6 +7,8 @@ This script automates the process of distributing **Apple App Store promo codes*
 ✅ **Sends an email notification** to the developer when all codes are used.  
 ✅ **Detects when new codes are added** and resets automatically.  
 ✅ **Redirects users to a custom site when all codes are used up.**  
+✅ QR Code Generation: Displays a QR code linking to the App Store with the promo code.
+✅ Expiration Date Tracking: Adds a new column to track when a promo code was uploaded and expires after 28 days.
 
 ---
 
@@ -21,10 +23,11 @@ This script automates the process of distributing **Apple App Store promo codes*
 ## 📌 **Step-by-Step Guide**  
 
 ### **1️⃣ Set Up Your Google Sheet**  
-1. Create a **new Google Sheet**.  
-2. In **Column A**, list your **Apple promo codes**.  
-3. In **Column B**, add a header called `"Status"` (leave the rows below blank).  
-4. **(Optional)** Leave cell `C1` empty—this will track if an email notification has been sent.  
+1.	Column A: Promo Code
+2.	Column B: Status (Blank = Available, “Redeemed” = Used)
+3.	Column C: Upload Date (Date the code was added)
+4.	Column D: Expiration Date (Automatically set to 28 days after upload)
+5.	Cell E1: "Notified" (Used to track if an email was sent when codes run out)
 
 ---
 
