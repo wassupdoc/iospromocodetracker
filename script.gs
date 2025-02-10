@@ -49,7 +49,7 @@ function doGet() {
   
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
-  var redirectURL = "https://freeradicalsoft.com";
+  var redirectURL = "https://your_web_address.com"; //insert your Web site redirect URL
   var ownerEmail = PropertiesService.getScriptProperties().getProperty('OWNER_EMAIL'); // Store email in properties
   var today = new Date();
   today.setHours(0,0,0,0); // Reset time part to compare dates only
