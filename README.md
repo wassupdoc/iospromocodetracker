@@ -111,46 +111,6 @@ The script sends email notifications:
 - Subject: "All Promo Codes Redeemed or Expired"
 - One-time notification (resets when new codes added)
 
-## 📊 Monitoring & Maintenance
-1. View Usage:
-   - Open the sheet to see redemption status
-   - Check Apps Script logs for detailed history
-   - Monitor email notifications
-
-2. Backup Procedures:
-   - Regularly export sheet to CSV
-   - Save script versions before updates
-   - Keep copy of deployment settings
-
-3. Rate Limits:
-   - Google Apps Script quotas apply
-   - 20,000 executions per day
-   - 30 simultaneous executions
-   - [See Google's quota documentation](https://developers.google.com/apps-script/guides/services/quotas)
-
-4. Dependencies:
-   - QuickChart.io for QR code generation
-   - Google Sheets API
-   - Google Apps Script services
-
-## 🔄 Updating
-When new versions are released:
-1. Backup your current script
-2. Copy new code from GitHub
-3. Update your CONFIG settings
-4. Test with sample codes
-5. Redeploy as new version
-
-## 📱 Usage Guide
-1. Share web app URL with users
-2. Users receive:
-   - Available code → App Store redirect
-   - No codes → Custom site redirect
-3. Add codes anytime:
-   - Dates set automatically
-   - System resets notifications
-   - No manual steps needed
-
 ## ❗ Troubleshooting
 Common issues and solutions:
 1. Authorization errors:
