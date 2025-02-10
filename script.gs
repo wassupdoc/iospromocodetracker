@@ -1,33 +1,98 @@
-function doGet() {
+// Developer-only functions (require permissions)
+function updateDates() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
-  var redirectURL = "https://freeradicalsoft.com"; // Change this to your custom redirect URL
-  var ownerEmail = Session.getActiveUser().getEmail();
+  
+  for (var i = 1; i < data.length; i++) { // Skip headers
+    var uploadDateRaw = data[i][2];
+    var expirationDateRaw = data[i][3];
+    
+    // Check if upload date is missing or invalid
+    var uploadDate = new Date(uploadDateRaw);
+    var needsUploadDate = !uploadDateRaw || uploadDateRaw === '' || isNaN(uploadDate.getTime());
+    
+    if (needsUploadDate) {
+      var todayDate = new Date();
+      todayDate.setHours(0,0,0,0);
+      sheet.getRange(i + 1, 3).setValue(todayDate);
+      uploadDate = todayDate;
+    }
+
+    // Check if expiration date is missing, invalid, or needs updating
+    var expirationDate = new Date(expirationDateRaw);
+    var needsExpirationDate = !expirationDateRaw || 
+                             expirationDateRaw === '' || 
+                             isNaN(expirationDate.getTime()) ||
+                             needsUploadDate;
+    
+    if (needsExpirationDate) {
+      var expDate = new Date(uploadDate);
+      expDate.setDate(expDate.getDate() + 28);
+      expDate.setHours(0,0,0,0);
+      sheet.getRange(i + 1, 4).setValue(expDate);
+    }
+  }
+}
+
+function createTrigger() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  ScriptApp.newTrigger('updateDates')
+    .forSpreadsheet(sheet)
+    .onEdit()
+    .create();
+}
+
+// Public web app function
+function doGet() {
+  // First, ensure all dates are updated
+  updateDates();
+  
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var redirectURL = "https://freeradicalsoft.com";
+  var ownerEmail = PropertiesService.getScriptProperties().getProperty('OWNER_EMAIL'); // Store email in properties
   var today = new Date();
+  today.setHours(0,0,0,0); // Reset time part to compare dates only
   var allRedeemed = true;
 
   for (var i = 1; i < data.length; i++) { // Skip headers
     var promoCode = data[i][0];
     var status = data[i][1];
-    var uploadDate = data[i][2];
-    var expirationDate = data[i][3];
-
-    // Check if upload date is missing and set it to today's date
-    if (!uploadDate) {
+    var uploadDateRaw = data[i][2];
+    var expirationDateRaw = data[i][3];
+    
+    // Check if upload date is missing or invalid
+    var uploadDate = new Date(uploadDateRaw);
+    var needsUploadDate = !uploadDateRaw || uploadDateRaw === '' || isNaN(uploadDate.getTime());
+    
+    if (needsUploadDate) {
       var todayDate = new Date();
-      sheet.getRange(i + 1, 3).setValue(todayDate); // Store upload date in the sheet
+      todayDate.setHours(0,0,0,0);
+      sheet.getRange(i + 1, 3).setValue(todayDate);
       uploadDate = todayDate;
     }
 
-    // Check if expiration date is missing and set it immediately based on upload date
-    if (!expirationDate) {
+    // Check if expiration date is missing, invalid, or needs updating
+    var expirationDate = new Date(expirationDateRaw);
+    var needsExpirationDate = !expirationDateRaw || 
+                             expirationDateRaw === '' || 
+                             isNaN(expirationDate.getTime()) ||
+                             needsUploadDate; // Also update if upload date was just set
+    
+    if (needsExpirationDate) {
       var expDate = new Date(uploadDate);
       expDate.setDate(expDate.getDate() + 28);
-      sheet.getRange(i + 1, 4).setValue(expDate); // Store expiration date in the sheet
+      expDate.setHours(0,0,0,0);
+      sheet.getRange(i + 1, 4).setValue(expDate);
+      expirationDate = expDate;
     }
 
+    // Ensure dates are compared properly by converting to Date objects
+    var currentExpirationDate = new Date(expirationDate);
+    currentExpirationDate.setHours(0,0,0,0);
+
     // Check if the promo code is still valid
-    if (status !== "Redeemed" && expirationDate > today) {
+    if (status !== "Redeemed" && currentExpirationDate > today) {
       sheet.getRange(i + 1, 2).setValue("Redeemed");
 
       var appStoreURL = "https://apps.apple.com/redeem?code=" + promoCode;
@@ -90,7 +155,7 @@ function doGet() {
           </body>
         </html>`
       ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    } else if (status !== "Redeemed" && expirationDate <= today) {
+    } else if (status !== "Redeemed" && currentExpirationDate <= today) {
       // Mark expired codes as "Expired"
       sheet.getRange(i + 1, 2).setValue("Expired");
     } else {
@@ -142,4 +207,11 @@ function doGet() {
       </body>
     </html>`
   ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// Developer setup function
+function setupScript() {
+  // Store developer email in script properties
+  var ownerEmail = Session.getActiveUser().getEmail();
+  PropertiesService.getScriptProperties().setProperty('OWNER_EMAIL', ownerEmail);
 }
