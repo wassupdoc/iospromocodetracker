@@ -11,7 +11,7 @@ What you'll see:
 - Mobile-friendly interface
 - Instant code delivery
 
-Note: This is a demo instance using sample codes for demonstration purposes.
+Note: This is a instance using real codes for my ios app [Custom Contacts](https://apps.apple.com/app/apple-store/id1460459040?pt=93077&ct=GitHub&mt=8) for demo purposes.
 
 ## 📋 Prerequisites
 - Google account
