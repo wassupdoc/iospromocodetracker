@@ -22,7 +22,8 @@ Note: This is a instance using real codes for my ios app [Custom Contacts](https
 ## 🚀 Quick Start (Recommended)
 1. Open the [template spreadsheet](https://docs.google.com/spreadsheets/d/1tkYNCup-ZtKozkpF6s96E__1DcsUUtso0afIQbF-poE/edit?usp=sharing)
 2. Make a copy: **File → Make a copy**
-3. Follow the Configuration and Deployment steps below
+3. Copy and paste your apple promo codes into column 1, leave other columns blank
+4. Follow the Configuration and Deployment steps below
 
 ## ⚙️ Configuration
 1. Open the Apps Script editor (**Extensions → Apps Script**)
