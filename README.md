@@ -8,11 +8,11 @@ Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbzdY
 ![Sample redemption page showing a promo code, Copy button, Redeem Code button, QR code, and GitHub footer](docs/redemption-page-sample.png)
 
 What you'll see:
-- If codes are available: promo code with Copy, App Store redemption link, and QR code
+- A **Get my promo code** step first (codes are not burned by link previews)
+- Then: promo code with Copy, App Store redemption link, and QR code
 - If no codes: Redirect to the app website
 - A footer linking to this open-source project on GitHub
 - Mobile-friendly interface
-- Instant code delivery
 
 Note: This is an instance using real codes for my iOS app [Roughcut](https://livup.app/roughcut) for demo purposes.
 
@@ -25,7 +25,7 @@ Note: This is an instance using real codes for my iOS app [Roughcut](https://liv
 ## 🚀 Quick Start (Recommended)
 1. Open the [template spreadsheet](https://docs.google.com/spreadsheets/d/1tkYNCup-ZtKozkpF6s96E__1DcsUUtso0afIQbF-poE/edit?usp=sharing)
 2. Make a copy: **File → Make a copy**
-3. Copy and paste your apple promo codes into column 1, leave other columns blank
+3. Copy and paste your Apple promo codes into column A; leave other columns blank (or set Campaign in column G for pools)
 4. Follow the Configuration and Deployment steps below
 
 ## ⚙️ Configuration
@@ -35,16 +35,32 @@ Note: This is an instance using real codes for my iOS app [Roughcut](https://liv
    const CONFIG = {
      EXPIRATION_DAYS: 28,
      APP_NAME: "Your App",
-     APP_WEBSITE_URL: "https://yourwebsite.com"
+     APP_WEBSITE_URL: "https://yourwebsite.com",
+     APP_LOGO_URL: "",
+     APP_BLURB: "",
+     LOW_STOCK_THRESHOLD: 10,
+     MAX_CLAIMS_PER_VISITOR_PER_DAY: 1,
+     CLAIM_COOLDOWN_SECONDS: 60,
+     MAX_CLAIMS_PER_MINUTE: 30
    };
    ```
 3. Set `APP_NAME` to your app’s display name
 4. Replace `yourwebsite.com` with your app website URL (homepage link + empty-state redirect)
-5. Save the script
+5. Optionally set `APP_LOGO_URL` and `APP_BLURB` for light branding
+6. Tune limits / `LOW_STOCK_THRESHOLD` if needed
+7. Save the script
+
+## 🔗 Share URLs (optional query params)
+Append tracking and pool params to your web app URL:
+
+- `?src=reddit` — stored in the **Source** column when a code is claimed
+- `?campaign=press` — only assigns codes whose **Campaign** column matches (case-insensitive). Omit for the default pool (blank Campaign cells)
+
+Example: `https://script.google.com/macros/s/.../exec?src=twitter&campaign=launch`
 
 ## 🔄 Initial Setup
 1. In the Apps Script editor:
-   - Run the `initialize()` function
+   - Run the `initialize()` function (sets owner email, sheet headers, and the onEdit trigger)
    - Authorize when prompted
 2. Deploy as web app:
    - Click **Deploy → New deployment**
@@ -55,13 +71,14 @@ Note: This is an instance using real codes for my iOS app [Roughcut](https://liv
    - Click Deploy and copy the URL
 3. Test deployment:
    - Open URL in an incognito window
+   - You should see **Get my promo code** (not an immediate code)
    - If you see "unable to open file" error:
      1. Delete all deployments
      2. Create new deployment
      3. Ensure sheet is shared with anyone (view only)
      4. Try deployment again
 
-Note: The sheet must be accessible to anyone with the link (View only) for the web app to work properly.
+Note: The sheet must be accessible to anyone with the link (View only) for the web app to work properly. After pulling script updates, create a **new deployment version**.
 
 ## 🌐 Custom Domain (Optional)
 Make the app appear to run on your domain:
@@ -75,18 +92,27 @@ Make the app appear to run on your domain:
 Note: The actual script still runs on Google's servers, but users will see your domain in their browser.
 
 ## 📝 Manual Sheet Setup (Alternative)
-If not using the template, create a sheet with:
-- Column A: Promo Code
-- Column B: Status (Blank = Available, "Redeemed" = Used)
-- Column C: Upload Date (Auto-filled)
-- Column D: Expiration Date (Auto-set to upload date + 28 days)
-- Cell E1: Reserved for notification tracking
+If not using the template, create a sheet with these headers in row 1:
+
+| Col | Header | Purpose |
+| --- | --- | --- |
+| A | Promo Code | Code from App Store Connect |
+| B | Status | Blank / Available, `Redeemed`, or `Expired` |
+| C | Upload Date | Auto-filled |
+| D | Expiration Date | Auto-set to upload date + `EXPIRATION_DAYS` |
+| E | Redeemed At | Timestamp when claimed |
+| F | Source | From `?src=` |
+| G | Campaign | Pool name (blank = default pool) |
+| H | Visitor Id | Browser visitor id that claimed the row |
+
+Notification flags (all-redeemed / low-stock) are stored in **Script Properties**, not in cell E1.
 
 ## 🔐 Security & Permissions
 - Script runs under developer's account permissions (intended behavior)
 - End users don't need Google account access
 - Only the developer needs to authorize the script
-- All sheet operations are secure and authenticated
+- Codes are assigned only on **Get my promo code** (HTTP POST), not on page load or link previews
+- Per-browser daily limit, short cooldown, and a global claims/minute cap slow casual draining
 - "Execute as Me" setting ensures:
   - Secure sheet access
   - Protected email notifications
@@ -94,31 +120,31 @@ If not using the template, create a sheet with:
   - Single point of management
 
 ## 🎯 How It Works
-1. User accesses the web app URL
-2. System provides next available code
-3. User can copy the code, open App Store redemption, or scan the QR code
-4. Code is marked as "Redeemed"
-5. QR code provided for mobile users
-6. Developer notified when codes run out
+1. User opens the web app URL (optionally with `?src=` / `?campaign=`)
+2. Landing page asks them to tap **Get my promo code**
+3. Script assigns the next available code (with lock + limits), marks it Redeemed, and logs Redeemed At / Source / Visitor Id
+4. User can copy the code, open App Store redemption, or scan the QR code
+5. Returning with the same browser the same day sees their existing code (no second burn)
+6. Developer is emailed when stock is low and again when everything is redeemed/expired
 
 ## ✨ Features
-- Automatic code distribution
+- Claim-first reveal (preview-safe)
 - Visible promo code with one-tap Copy
 - Direct App Store redemption (user-initiated)
-- QR code generation
-- Configurable app name on the redemption page
+- QR code generation (after claim)
+- Configurable app name, optional logo + blurb
+- Source (`?src=`) and campaign pool (`?campaign=`) tracking
+- Per-visitor daily limit, claim cooldown, global rate limit
 - 28-day expiration tracking
-- Email notifications
-- Auto-reset for new codes
+- Low-stock and all-redeemed email notifications
 - App website link + redirect when empty
-- GitHub footer on redemption and out-of-codes pages (encourages others to deploy their own copy)
+- GitHub footer on public pages (encourages others to deploy their own copy)
 
 ## 📧 Notifications
-The script sends email notifications:
-- When all codes are used/expired
-- To the email associated with your Google account
-- Subject: "All Promo Codes Redeemed or Expired"
-- One-time notification (resets when new codes added)
+The script emails the Google account used in `initialize()`:
+- When remaining codes drop below `LOW_STOCK_THRESHOLD` (once until you restock above the threshold)
+- When all codes are used/expired (once until new available codes appear)
+- Subjects: low-stock message / "All Promo Codes Redeemed or Expired"
 
 ## ❗ Troubleshooting
 Common issues and solutions:
@@ -127,9 +153,10 @@ Common issues and solutions:
    - Re-run setup functions
    - Check deployment settings
 2. Codes not distributing:
-   - Verify sheet structure
+   - Verify sheet headers and structure
    - Check date formats
    - Ensure codes aren't marked as used
+   - If using `?campaign=`, confirm column G matches
 3. Script errors:
    - Check Apps Script logs for error details
    - Verify CONFIG.APP_WEBSITE_URL is properly formatted
@@ -140,18 +167,20 @@ Common issues and solutions:
    - Check "Allow access to anyone, even anonymous"
    - Test in incognito window
    - Clear browser cache and try again
+5. Link previews / Slack showing empty:
+   - Expected — previews do not receive a code; users must open in a browser and tap the button
 
 ## 🔄 Maintenance
-- Add new codes directly to sheet
-- System auto-updates dates
-- No regular maintenance needed
-- Script updates preserve settings
+- Add new codes directly to sheet (column A; optional Campaign in G)
+- System auto-updates dates and headers on run
+- Low-stock / all-redeemed notify flags reset when inventory recovers
+- Script updates preserve Script Properties; redeploy the web app after changes
 
 ## 🚀 Benefits
-- Zero-touch operation
+- Preview-safe distribution
 - Automatic tracking
 - User-friendly interface
-- Secure distribution
+- Secure, rate-limited claims
 
 ## 🔒 Google Verification
 Important: Each developer who deploys this script needs their own verification if they plan to distribute their deployment widely (>100 users).
@@ -233,6 +262,3 @@ For template maintainers:
    ```
 
 This ensures both versions stay synchronized.
-
-
-
