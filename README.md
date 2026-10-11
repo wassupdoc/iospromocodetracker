@@ -3,7 +3,7 @@
 This script automates the distribution of **Apple App Store promo codes** via **Google Sheets** and **Apps Script**.
 
 ## 🎬 Live Demo
-Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbzdYQlSdWy57cJg-aYQ72YF3SK7i_KxWeK4N-_WzxOczGmtdkr5hBJUPSkZS2bZaV23rg/exec)
+Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbx1ZGXYlu9Tf0hKwcqWFClcRAxj6rKFtXuRbeG7z2GAsyXnqZF7YSfownkzmCli76Ri-A/exec)
 
 ![Sample redemption page showing a promo code, Copy button, Redeem Code button, QR code, and GitHub footer](docs/redemption-page-sample.png)
 
