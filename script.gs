@@ -1,8 +1,10 @@
 // Configuration constants
 const CONFIG = {
   EXPIRATION_DAYS: 28,
-  // TODO: Replace with your website URL where users will be redirected when no codes are available
-  REDIRECT_URL: "https://yourwebsite.com"
+  // TODO: Replace with your app's display name (shown on the redemption page)
+  APP_NAME: "Your App",
+  // TODO: Replace with your app website URL (homepage link + empty-state redirect)
+  APP_WEBSITE_URL: "https://yourwebsite.com"
 };
 
 /**
@@ -66,6 +68,19 @@ function createTrigger() {
 }
 
 /**
+ * Escapes text for safe HTML text content
+ * @param {string} text
+ * @returns {string}
+ */
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
  * Shared CSS for the GitHub project footer
  * @returns {string} CSS rules
  */
@@ -114,6 +129,17 @@ function githubLinkHtml() {
 function generateRedemptionHtml(promoCode) {
   var appStoreURL = "https://apps.apple.com/redeem?code=" + promoCode;
   var qrCodeURL = "https://quickchart.io/qr?text=" + encodeURIComponent(appStoreURL) + "&size=200";
+  var promoCodeText = String(promoCode);
+  var htmlEscapedPromoCode = escapeHtml(promoCodeText);
+  var htmlEscapedAppName = escapeHtml(String(CONFIG.APP_NAME));
+  var jsEscapedPromoCode = promoCodeText
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n")
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e");
   
   return `<html>
     <head>
@@ -122,6 +148,11 @@ function generateRedemptionHtml(promoCode) {
         .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
         .btn { background-color: #007aff; color: white; padding: 12px 20px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; margin: 10px 0; }
         .btn:hover { background-color: #005ecb; }
+        .btn-secondary { background-color: #f2f2f2; color: #007aff; padding: 8px 14px; font-size: 14px; border: 1px solid #d0d0d0; border-radius: 5px; cursor: pointer; margin-left: 8px; }
+        .btn-secondary:hover { background-color: #e8e8e8; }
+        .code-row { margin: 16px 0 8px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
+        .promo-code { font-family: Menlo, Monaco, Consolas, monospace; font-size: 18px; letter-spacing: 0.5px; background: #f5f5f5; padding: 8px 12px; border-radius: 5px; }
+        .copy-status { min-height: 1.2em; font-size: 13px; color: #666; margin: 0 0 8px; }
         .qr-container { margin-top: 20px; }
         .app-website-link { margin-top: 20px; font-size: 14px; }
         .app-website-link a { color: #007aff; text-decoration: none; }
@@ -129,21 +160,48 @@ function generateRedemptionHtml(promoCode) {
         ${githubLinkCss()}
       </style>
       <script>
-        function openAppStore() { window.open("${appStoreURL}", "_blank"); }
-        window.onload = openAppStore;
+        function copyPromoCode() {
+          var code = "${jsEscapedPromoCode}";
+          var status = document.getElementById("copy-status");
+          function showCopied() {
+            if (status) { status.textContent = "Copied!"; }
+          }
+          function showFailed() {
+            if (status) { status.textContent = "Could not copy. Select the code manually."; }
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(showCopied).catch(showFailed);
+            return;
+          }
+          var input = document.createElement("input");
+          input.value = code;
+          document.body.appendChild(input);
+          input.select();
+          try {
+            document.execCommand("copy") ? showCopied() : showFailed();
+          } catch (e) {
+            showFailed();
+          }
+          document.body.removeChild(input);
+        }
       </script>
     </head>
     <body>
       <div class="container">
-        <h2>Your Free App Promo Code</h2>
+        <h2>Your ${htmlEscapedAppName} Promo Code</h2>
         <p>Click below to redeem your code:</p>
-        <a class="btn" href="${appStoreURL}" target="_blank">Redeem Code</a>
+        <div class="code-row">
+          <code class="promo-code" id="promo-code">${htmlEscapedPromoCode}</code>
+          <button type="button" class="btn-secondary" onclick="copyPromoCode()">Copy</button>
+        </div>
+        <p class="copy-status" id="copy-status" aria-live="polite"></p>
+        <a class="btn" href="${appStoreURL}" target="_blank" rel="noopener noreferrer">Redeem Code</a>
         <div class="qr-container">
           <p>Or scan the QR code:</p>
           <img src="${qrCodeURL}" alt="QR Code">
         </div>
         <div class="app-website-link">
-          <a href="${CONFIG.REDIRECT_URL}" target="_blank" rel="noopener noreferrer">Visit the app website →</a>
+          <a href="${CONFIG.APP_WEBSITE_URL}" target="_blank" rel="noopener noreferrer">Visit the app website →</a>
         </div>
         ${githubLinkHtml()}
       </div>
@@ -165,14 +223,14 @@ function generateNoCodesHtml() {
         ${githubLinkCss()}
       </style>
       <script>
-        setTimeout(function() { window.location.href = "${CONFIG.REDIRECT_URL}"; }, 5000);
+        setTimeout(function() { window.location.href = "${CONFIG.APP_WEBSITE_URL}"; }, 5000);
       </script>
     </head>
     <body>
       <div class="container">
         <p class="msg">Sorry, all promo codes have been redeemed or expired.</p>
         <p class="msg">You will be redirected shortly.</p>
-        <p><a href="${CONFIG.REDIRECT_URL}">Click here if you are not redirected.</a></p>
+        <p><a href="${CONFIG.APP_WEBSITE_URL}">Click here if you are not redirected.</a></p>
         ${githubLinkHtml()}
       </div>
     </body>

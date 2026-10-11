@@ -6,8 +6,8 @@ This script automates the distribution of **Apple App Store promo codes** via **
 Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbzuNbx225PC1HHchhIw_B4iza0hdHVpEuG9Yy5VMaXuhg2arghmegTJbEqX_ARkSTsw/exec)
 
 What you'll see:
-- If codes are available: QR code and App Store redemption link
-- If no codes: Redirect to sample website
+- If codes are available: promo code with Copy, App Store redemption link, and QR code
+- If no codes: Redirect to the app website
 - A footer linking to this open-source project on GitHub
 - Mobile-friendly interface
 - Instant code delivery
@@ -18,7 +18,7 @@ Note: This is an instance using real codes for my iOS app [Roughcut](https://liv
 - Google account
 - Apple Developer account with promo codes
 - Basic familiarity with Google Sheets
-- Your website URL for redirects (when no codes available)
+- Your app name and website URL (shown on the redemption page; also used when no codes remain)
 
 ## 🚀 Quick Start (Recommended)
 1. Open the [template spreadsheet](https://docs.google.com/spreadsheets/d/1tkYNCup-ZtKozkpF6s96E__1DcsUUtso0afIQbF-poE/edit?usp=sharing)
@@ -32,11 +32,13 @@ Note: This is an instance using real codes for my iOS app [Roughcut](https://liv
    ```javascript
    const CONFIG = {
      EXPIRATION_DAYS: 28,
-     REDIRECT_URL: "https://yourwebsite.com"
+     APP_NAME: "Your App",
+     APP_WEBSITE_URL: "https://yourwebsite.com"
    };
    ```
-3. Replace `yourwebsite.com` with your actual website URL
-4. Save the script
+3. Set `APP_NAME` to your app’s display name
+4. Replace `yourwebsite.com` with your app website URL (homepage link + empty-state redirect)
+5. Save the script
 
 ## 🔄 Initial Setup
 1. In the Apps Script editor:
@@ -92,19 +94,21 @@ If not using the template, create a sheet with:
 ## 🎯 How It Works
 1. User accesses the web app URL
 2. System provides next available code
-3. User gets redirected to App Store
+3. User can copy the code, open App Store redemption, or scan the QR code
 4. Code is marked as "Redeemed"
 5. QR code provided for mobile users
 6. Developer notified when codes run out
 
 ## ✨ Features
 - Automatic code distribution
-- Direct App Store redemption
+- Visible promo code with one-tap Copy
+- Direct App Store redemption (user-initiated)
 - QR code generation
+- Configurable app name on the redemption page
 - 28-day expiration tracking
 - Email notifications
 - Auto-reset for new codes
-- Custom site redirect when empty
+- App website link + redirect when empty
 - GitHub footer on redemption and out-of-codes pages (encourages others to deploy their own copy)
 
 ## 📧 Notifications
@@ -126,7 +130,7 @@ Common issues and solutions:
    - Ensure codes aren't marked as used
 3. Script errors:
    - Check Apps Script logs for error details
-   - Verify CONFIG.REDIRECT_URL is properly formatted
+   - Verify CONFIG.APP_WEBSITE_URL is properly formatted
    - Ensure all setup steps were completed
 4. "Unable to open file" error:
    - Ensure sheet is shared (Anyone with link - Viewer)
