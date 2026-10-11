@@ -66,6 +66,47 @@ function createTrigger() {
 }
 
 /**
+ * Shared CSS for the GitHub project footer
+ * @returns {string} CSS rules
+ */
+function githubLinkCss() {
+  return `
+        .github-link {
+          margin-top: 24px;
+          padding-top: 16px;
+          border-top: 1px solid #e5e5e5;
+          font-size: 13px;
+          color: #666;
+        }
+        .github-link a {
+          color: #007aff;
+          text-decoration: none;
+        }
+        .github-link a:hover {
+          text-decoration: underline;
+        }`;
+}
+
+/**
+ * Shared HTML for the GitHub project footer
+ * @returns {string} Footer markup
+ */
+function githubLinkHtml() {
+  var githubUrl = "https://github.com/wassupdoc/iospromocodetracker";
+  return `
+        <div class="github-link">
+          <p>
+            Want to share your own App Store promo codes?<br>
+            <a href="${githubUrl}"
+               target="_blank"
+               rel="noopener noreferrer">
+              Get this free, open-source promo code tracker on GitHub →
+            </a>
+          </p>
+        </div>`;
+}
+
+/**
  * Generates HTML for code redemption page
  * @param {string} promoCode - The promo code to redeem
  * @returns {string} HTML content
@@ -82,6 +123,7 @@ function generateRedemptionHtml(promoCode) {
         .btn { background-color: #007aff; color: white; padding: 12px 20px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; margin: 10px 0; }
         .btn:hover { background-color: #005ecb; }
         .qr-container { margin-top: 20px; }
+        ${githubLinkCss()}
       </style>
       <script>
         function openAppStore() { window.open("${appStoreURL}", "_blank"); }
@@ -97,6 +139,7 @@ function generateRedemptionHtml(promoCode) {
           <p>Or scan the QR code:</p>
           <img src="${qrCodeURL}" alt="QR Code">
         </div>
+        ${githubLinkHtml()}
       </div>
     </body>
   </html>`;
@@ -113,6 +156,7 @@ function generateNoCodesHtml() {
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f8f8f8; }
         .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
         .msg { font-size: 18px; color: #333; }
+        ${githubLinkCss()}
       </style>
       <script>
         setTimeout(function() { window.location.href = "${CONFIG.REDIRECT_URL}"; }, 5000);
@@ -123,6 +167,7 @@ function generateNoCodesHtml() {
         <p class="msg">Sorry, all promo codes have been redeemed or expired.</p>
         <p class="msg">You will be redirected shortly.</p>
         <p><a href="${CONFIG.REDIRECT_URL}">Click here if you are not redirected.</a></p>
+        ${githubLinkHtml()}
       </div>
     </body>
   </html>`;

@@ -8,10 +8,11 @@ Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbzuN
 What you'll see:
 - If codes are available: QR code and App Store redemption link
 - If no codes: Redirect to sample website
+- A footer linking to this open-source project on GitHub
 - Mobile-friendly interface
 - Instant code delivery
 
-Note: This is a instance using real codes for my ios app [Custom Contacts](https://apps.apple.com/app/apple-store/id1460459040?pt=93077&ct=GitHub&mt=8) for demo purposes.
+Note: This is an instance using real codes for my iOS app [Roughcut](https://livup.app/roughcut) for demo purposes.
 
 ## 📋 Prerequisites
 - Google account
@@ -104,6 +105,7 @@ If not using the template, create a sheet with:
 - Email notifications
 - Auto-reset for new codes
 - Custom site redirect when empty
+- GitHub footer on redemption and out-of-codes pages (encourages others to deploy their own copy)
 
 ## 📧 Notifications
 The script sends email notifications:
