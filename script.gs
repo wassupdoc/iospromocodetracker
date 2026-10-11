@@ -687,23 +687,16 @@ function visitorClientScript_() {
           } catch (e4) {}
           return id;
         }
-        function pctSyncVisitorQuery() {
-          var id = pctEnsureVisitorId();
-          var params = new URLSearchParams(window.location.search);
-          if (params.get("visitor_id") !== id) {
-            params.set("visitor_id", id);
-            var next = window.location.pathname + "?" + params.toString() + window.location.hash;
-            window.location.replace(next);
-            return null;
-          }
-          return id;
-        }
         function pctFillClaimForm() {
+          // Do not location.replace/reload here: Apps Script serves HTML in an
+          // iframe, and rewriting pathname blanks the page. Visitor id is sent
+          // on POST via the hidden field (and optional ?visitor_id= on share URLs).
           var id = pctEnsureVisitorId();
           var visitorField = document.getElementById("visitor_id");
           var uaField = document.getElementById("ua");
           if (visitorField) { visitorField.value = id; }
           if (uaField) { uaField.value = navigator.userAgent || ""; }
+          return id;
         }`;
 }
 
@@ -731,7 +724,6 @@ function generateLandingHtml(src, campaign) {
       <script>
         ${visitorClientScript_()}
         document.addEventListener("DOMContentLoaded", function() {
-          if (!pctSyncVisitorQuery()) { return; }
           pctFillClaimForm();
         });
       </script>
@@ -741,7 +733,7 @@ function generateLandingHtml(src, campaign) {
         ${brandingHtml_()}
         <h2>Get your ${htmlEscapedAppName} promo code</h2>
         <p class="msg">Tap below to reveal a one-time App Store promo code.</p>
-        <form method="post" action="${formAction}">
+        <form method="post" action="${formAction}" target="_top">
           <input type="hidden" name="visitor_id" id="visitor_id" value="">
           <input type="hidden" name="ua" id="ua" value="">
           <input type="hidden" name="src" value="${escapeHtml(src)}">
