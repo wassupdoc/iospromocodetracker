@@ -123,6 +123,9 @@ function generateRedemptionHtml(promoCode) {
         .btn { background-color: #007aff; color: white; padding: 12px 20px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; margin: 10px 0; }
         .btn:hover { background-color: #005ecb; }
         .qr-container { margin-top: 20px; }
+        .app-website-link { margin-top: 20px; font-size: 14px; }
+        .app-website-link a { color: #007aff; text-decoration: none; }
+        .app-website-link a:hover { text-decoration: underline; }
         ${githubLinkCss()}
       </style>
       <script>
@@ -138,6 +141,9 @@ function generateRedemptionHtml(promoCode) {
         <div class="qr-container">
           <p>Or scan the QR code:</p>
           <img src="${qrCodeURL}" alt="QR Code">
+        </div>
+        <div class="app-website-link">
+          <a href="${CONFIG.REDIRECT_URL}" target="_blank" rel="noopener noreferrer">Visit the app website →</a>
         </div>
         ${githubLinkHtml()}
       </div>
