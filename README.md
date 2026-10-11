@@ -5,6 +5,8 @@ This script automates the distribution of **Apple App Store promo codes** via **
 ## 🎬 Live Demo
 Try it yourself: [See it in action](https://script.google.com/macros/s/AKfycbzdYQlSdWy57cJg-aYQ72YF3SK7i_KxWeK4N-_WzxOczGmtdkr5hBJUPSkZS2bZaV23rg/exec)
 
+![Sample redemption page showing a promo code, Copy button, Redeem Code button, QR code, and GitHub footer](docs/redemption-page-sample.png)
+
 What you'll see:
 - If codes are available: promo code with Copy, App Store redemption link, and QR code
 - If no codes: Redirect to the app website
